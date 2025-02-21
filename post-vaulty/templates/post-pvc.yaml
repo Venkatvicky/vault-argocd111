@@ -1,12 +1,11 @@
-{{- if .Values.postgres.persistence.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-pvc
+  namespace: default  # Ensure this is consistent
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: {{ .Values.postgres.storageSize }}
-{{- end }}
