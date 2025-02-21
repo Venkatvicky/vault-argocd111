@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: vault
+  namespace: vault-cluster  # Ensure this matches your namespace
   labels:
     app: vault
 spec:
@@ -14,11 +15,11 @@ spec:
       labels:
         app: vault
     spec:
-      serviceAccountName: vault-sa
+      serviceAccountName: vault-sa  # Ensure this service account exists
       initContainers:
         - name: wait-for-postgres
           image: busybox:latest
-          command: ['sh', '-c', 'until nc -z postgres 5432; do sleep 2; done']
+          command: ["sh", "-c", "until nc -z postgres 5432; do sleep 2; done"]
         - name: copy-config
           image: busybox
           command: ["/bin/sh", "-c", "cp -r /config/* /vault/config/ || true"]
@@ -31,7 +32,7 @@ spec:
         - name: vault
           image: hashicorp/vault:latest
           imagePullPolicy: IfNotPresent
-          args: ["server"]
+          args: ["server", "-config=/vault/config/vault.hcl"]
           env:
             - name: VAULT_ADDR
               value: "http://127.0.0.1:8200"
@@ -46,6 +47,6 @@ spec:
       volumes:
         - name: config-source
           configMap:
-            name: vault-config
+            name: vault-config  # Ensure this ConfigMap exists
         - name: vault-config
           emptyDir: {}
