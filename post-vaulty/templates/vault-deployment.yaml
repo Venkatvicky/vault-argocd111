@@ -14,26 +14,28 @@ spec:
       labels:
         app: vault
     spec:
-      securityContext:
-        capabilities:
-          add: ["IPC_LOCK"]
       initContainers:
         - name: wait-for-postgres
-          image: busybox
-          command: ['sh', '-c', 'until nc -z postgres 5432; do sleep 2; done']
+          image: alpine
+          command: ["sh", "-c", "until nc -z postgres 5432; do sleep 2; done"]
+          # Alpine has netcat pre-installed
+
         - name: copy-config
           image: busybox
-          command: ["/bin/sh", "-c", "cp /config/* /vault/config/"]
+          command: ["/bin/sh", "-c", "cp -r /config/* /vault/config/"]
           volumeMounts:
             - name: vault-config
               mountPath: /vault/config
             - name: config-source
               mountPath: /config
+          securityContext:
+            runAsUser: 0  # Allows writing to /vault/config/
+
       containers:
         - name: vault
           image: hashicorp/vault:latest
           imagePullPolicy: IfNotPresent
-          args: ["server"]
+          command: ["vault", "server"]
           env:
             - name: VAULT_ADDR
               value: "http://127.0.0.1:8200"
@@ -42,9 +44,14 @@ spec:
           volumeMounts:
             - name: vault-config
               mountPath: /vault/config
+          securityContext:
+            capabilities:
+              add: ["IPC_LOCK"]  # Moved to the correct location
+
       volumes:
         - name: config-source
           configMap:
             name: vault-config
         - name: vault-config
-          emptyDir: {}
+          emptyDir: {}  # Allows writes
+
