@@ -8,6 +8,8 @@ postgres:
   username: vaultuser
   password: vaultpass
   servicePort: 5432
+  persistence:
+    enabled: true  # Ensure this is added to avoid duplicate PVC issues
 
 vault:
   image: hashicorp/vault:latest
