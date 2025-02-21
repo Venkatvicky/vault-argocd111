@@ -18,10 +18,10 @@ spec:
       initContainers:
         - name: wait-for-postgres
           image: busybox:1.35
-          command: ["sh", "-c", "until nc -z postgres 5432; do sleep 2; done"]
+          command: ["sh", "-c", "until nc -z postgres.default.svc.cluster.local 5432; do sleep 2; done"]
       containers:
         - name: vault
-          image: {{ .Values.vault.image }}
+          image: "{{ .Values.vault.image }}"  # Ensure this value is correctly defined in values.yaml
           imagePullPolicy: IfNotPresent
           args: ["server", "-dev"]
           env:
