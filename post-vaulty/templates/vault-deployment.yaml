@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: vault
-  namespace: vault-cluster
   labels:
     app: vault
 spec:
@@ -19,34 +18,17 @@ spec:
       initContainers:
         - name: wait-for-postgres
           image: busybox:1.35
-          command: ["sh", "-c", "until nc -z postgres.postgres-helm-chart 5432; do sleep 2; done"]
-        - name: copy-config
-          image: busybox:1.35
-          command: ["/bin/sh", "-c", "cp -r /config/* /vault/config/ || true"]
-          volumeMounts:
-            - name: vault-config
-              mountPath: /vault/config
-            - name: config-source
-              mountPath: /config
+          command: ["sh", "-c", "until nc -z postgres 5432; do sleep 2; done"]
       containers:
         - name: vault
-          image: hashicorp/vault:latest
+          image: {{ .Values.vault.image }}
           imagePullPolicy: IfNotPresent
-          args: ["server", "-config=/vault/config/vault.hcl"]
+          args: ["server", "-dev"]
           env:
-            - name: VAULT_ADDR
-              value: "http://127.0.0.1:8200"
+            - name: VAULT_DEV_ROOT_TOKEN_ID
+              value: "root"
           ports:
             - containerPort: 8200
           securityContext:
             capabilities:
               add: ["IPC_LOCK"]
-          volumeMounts:
-            - name: vault-config
-              mountPath: /vault/config
-      volumes:
-        - name: config-source
-          configMap:
-            name: vault-config
-        - name: vault-config
-          emptyDir: {}
