@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: vault
-  namespace: vault-cluster  # Ensure this matches your namespace
+  namespace: vault-cluster
   labels:
     app: vault
 spec:
@@ -15,13 +15,13 @@ spec:
       labels:
         app: vault
     spec:
-      serviceAccountName: vault-sa  # Ensure this service account exists
+      serviceAccountName: vault-sa
       initContainers:
         - name: wait-for-postgres
-          image: busybox:latest
-          command: ["sh", "-c", "until nc -z postgres 5432; do sleep 2; done"]
+          image: busybox:1.35
+          command: ["sh", "-c", "until nc -z postgres.postgres-helm-chart 5432; do sleep 2; done"]
         - name: copy-config
-          image: busybox
+          image: busybox:1.35
           command: ["/bin/sh", "-c", "cp -r /config/* /vault/config/ || true"]
           volumeMounts:
             - name: vault-config
@@ -47,6 +47,6 @@ spec:
       volumes:
         - name: config-source
           configMap:
-            name: vault-config  # Ensure this ConfigMap exists
+            name: vault-config
         - name: vault-config
           emptyDir: {}
