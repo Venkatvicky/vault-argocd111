@@ -8,4 +8,4 @@ spec:
   resources:
     requests:
       storage: {{ .Values.postgres.storageSize }}
-  storageClassName: gp2  # Make sure this matches your cloud provider
+  storageClassName: custom-gp2  # Use the new StorageClass
