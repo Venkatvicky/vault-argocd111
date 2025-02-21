@@ -7,5 +7,7 @@ spec:
     storage: {{ .Values.postgres.storageSize }}
   accessModes:
     - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: customgp2  # Use your custom StorageClass
   hostPath:
-    path: "/mnt/data"
+    path: "/mnt/data"  # For local storage (Change this for cloud environments)
