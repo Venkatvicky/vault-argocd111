@@ -3,7 +3,8 @@ kind: Service
 metadata:
   name: vault
 spec:
-  ports:
-    - port: {{ .Values.vault.servicePort }}
   selector:
     app: vault
+  ports:
+    - port: {{ .Values.vault.servicePort }}
+      targetPort: 8200
