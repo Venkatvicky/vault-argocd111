@@ -1,0 +1,25 @@
+global:
+  namespace: default
+
+postgres:
+  image: postgres:15
+  storageSize: 10Gi
+  database: vault
+  username: vaultuser
+  password: vaultpass
+  servicePort: 5432
+
+vault:
+  image: hashicorp/vault:latest
+  servicePort: 8200
+  ingress:
+    enabled: true
+    host: vault.example.com
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "256Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
